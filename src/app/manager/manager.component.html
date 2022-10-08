@@ -1,0 +1,299 @@
+<p-toast></p-toast>
+
+<div class="card">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+      <button
+        pButton
+        pRipple
+        label="New"
+        icon="pi pi-plus"
+        class="p-button-success p-mr-2"
+        (click)="openNew()"
+      ></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="AnimesData"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['title', 'day']"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Anime List</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            (input)="applyFilterGlobal($event, 'contains')"
+            placeholder="Search Name..."
+          />
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="title">
+          Titulo <p-sortIcon field="title"></p-sortIcon>
+        </th>
+        <th pSortableColumn="season">
+          Temporada <p-sortIcon field="season"></p-sortIcon>
+        </th>
+        <th pSortableColumn="year">
+          Ano <p-sortIcon field="year"></p-sortIcon>
+        </th>
+        <th pSortableColumn="day">Dia <p-sortIcon field="day"></p-sortIcon></th>
+        <th pSortableColumn="airing">
+          Lançando <p-sortIcon field="airing"></p-sortIcon>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-anime>
+      <tr>
+        <td>{{ anime.title }}</td>
+        <td>{{ anime.season }}</td>
+        <td>{{ anime.year }}</td>
+        <td>{{ anime.day | cap }}</td>
+        <td>{{ anime.airing }}</td>
+        <td>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success p-mr-2"
+            (click)="editAnime(anime)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-calendar-times"
+            class="p-button-rounded p-button-warning"
+            (click)="changeAiringAnime(anime)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        Total de Animes Registrados - {{ AnimesData ? AnimesData.length : 0 }}.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="animeModal"
+  [style]="{ width: '450px' }"
+  header="Anime Detalhes"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <div class="p-field">
+      <label for="title">Titulo</label>
+      <input
+        type="text"
+        pInputText
+        id="title"
+        [(ngModel)]="Anime.title"
+        required
+        autofocus
+      />
+      <small class="p-invalid" *ngIf="submitted && !Anime.title">
+        Titulo é Obrigatório.
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label for="image-url">Link da Imagem</label>
+      <input
+        type="text"
+        pInputText
+        id="image-url"
+        [(ngModel)]="Anime.image"
+        required
+        autofocus
+      />
+      <small class="p-invalid" *ngIf="submitted && !Anime.image">
+        Link da Imagem é Obrigatório.
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label class="p-mb-3">Lançando</label>
+
+      <p-dropdown
+        [options]="airing"
+        [(ngModel)]="Anime.airing"
+        optionValue="code"
+        optionLabel="name"
+      ></p-dropdown>
+    </div>
+
+    <div class="p-field">
+      <label for="year">Dia</label>
+      <input
+        type="text"
+        pInputText
+        id="year"
+        [(ngModel)]="Anime.day"
+        required
+        autofocus
+      />
+      <small class="p-invalid" *ngIf="submitted && !Anime.day">
+        O Dia é Obrigatório.
+      </small>
+    </div>
+
+    <div class="p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label for="year">Ano</label>
+        <input
+          type="text"
+          pInputText
+          id="year"
+          [(ngModel)]="Anime.year"
+          required
+          autofocus
+        />
+        <small class="p-invalid" *ngIf="submitted && !Anime.year">
+          O Ano é Obrigatório.
+        </small>
+      </div>
+      <div class="p-field p-col">
+        <label for="season">Temporada</label>
+        <input
+          type="text"
+          pInputText
+          id="season"
+          [(ngModel)]="Anime.season"
+          required
+          autofocus
+        />
+        <small class="p-invalid" *ngIf="submitted && !Anime.season">
+          A Temporada é Obrigatório.
+        </small>
+      </div>
+    </div>
+
+    <div class="p-field">
+      <label for="external">Links Externos</label>
+      <textarea
+        id="external"
+        pInputTextarea
+        [(ngModel)]="Anime.external"
+        required
+        rows="3"
+        cols="20"
+      ></textarea>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideModal()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveEditedAnime()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="animeAddModal"
+  [style]="{ width: '450px' }"
+  header="Anime Detalhes"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <div class="p-field">
+      <label for="title">Titulo</label>
+      <input
+        type="text"
+        pInputText
+        id="title"
+        [(ngModel)]="AnimeAdd.title"
+        required
+        autofocus
+      />
+      <small class="p-invalid" *ngIf="submitted && !AnimeAdd.title">
+        Titulo é Obrigatório.
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label for="year">Dia</label>
+      <p-dropdown
+        [options]="week"
+        [(ngModel)]="AnimeAdd.day"
+        optionValue="code"
+        optionLabel="name"
+      ></p-dropdown>
+    </div>
+
+    <div class="p-field">
+      <label class="p-mb-3">Lançando</label>
+      <br />
+      <p-dropdown
+        [options]="airing"
+        [(ngModel)]="AnimeAdd.airing"
+        optionValue="code"
+        optionLabel="name"
+      ></p-dropdown>
+    </div>
+
+    <div class="p-field">
+      <label for="external">Links Externos</label>
+      <textarea
+        id="external"
+        pInputTextarea
+        [(ngModel)]="AnimeAddExternal"
+        [value]="AnimeAddExternal"
+        required
+        rows="3"
+        cols="20"
+      ></textarea>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideAddModal()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="addAnime()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
