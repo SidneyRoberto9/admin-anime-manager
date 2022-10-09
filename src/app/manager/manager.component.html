@@ -63,7 +63,24 @@
         <td>{{ anime.season }}</td>
         <td>{{ anime.year }}</td>
         <td>{{ anime.day | cap }}</td>
-        <td>{{ anime.airing }}</td>
+        <td *ngIf="anime.airing">
+          <button
+            pButton
+            pRipple
+            type="button"
+            icon="pi pi-check"
+            class="p-button-rounded"
+          ></button>
+        </td>
+        <td *ngIf="!anime.airing">
+          <button
+            pButton
+            pRipple
+            type="button"
+            icon="pi pi-times"
+            class="p-button-rounded p-button-danger"
+          ></button>
+        </td>
         <td>
           <button
             pButton
